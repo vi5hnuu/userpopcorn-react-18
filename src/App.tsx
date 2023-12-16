@@ -45,7 +45,7 @@ export default function App() {
 
       <Main>
         <Box>
-          {isLoading && <Loader loading={isLoading} />}
+          {isLoading && <Loader loading={true} />}
           {!isLoading && !error && <MovieList movies={movies} onSelectMovie={handleSelectMovie} />}
           {error && <ErrorMessage message={error} />}
         </Box>

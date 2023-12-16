@@ -4,9 +4,9 @@ export default function Box({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="relative">
+    <div className="relative bg-slate-200 rounded-md shadow-3xl p-4 max-h-screen overflow-scroll">
       <button
-        className="absolute top-0 right-4 h-8 aspect-square transition-all rounded-full flex items-center justify-center border-none bg-gray-900 text-xl font-bold cursor-pointer z-10"
+        className="sticky top-2 left-full h-8 aspect-square transition-all rounded-full flex items-center justify-center border-none bg-gray-900 hover:bg-gray-600 text-xl font-bold cursor-pointer z-10"
         onClick={() => setIsOpen((open) => !open)}
       >
         {isOpen ? "–" : "+"}

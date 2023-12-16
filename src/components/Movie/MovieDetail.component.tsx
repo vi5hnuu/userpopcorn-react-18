@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { API_KEY } from "./../../utils/constants";
 import { useState, useRef } from "react";
 import { useKey } from "./../../hooks/useKey";
+import ErrorMessage from "../Error.component";
 
 export default function MovieDetails({
   selectedId,
@@ -17,8 +18,10 @@ export default function MovieDetails({
   onAddWatched: (movie: MovieModal) => void;
   watched: MovieModal[];
 }) {
-  const [movie, setMovie] = useState<MovieModal | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [movieDetail, setMovieDetail] = useState<{ movie: MovieModal | null; isLoading: boolean; error?: string }>({
+    movie: null,
+    isLoading: false,
+  });
   const [userRating, setUserRating] = useState<number>(0);
 
   const countRef = useRef(0);
@@ -30,113 +33,113 @@ export default function MovieDetails({
     [userRating]
   );
 
-  const isWatched = movie && watched.map((movie) => movie.imdbID).includes(selectedId);
-  const watchedUserRating = movie && watched.find((movie) => movie.imdbID === selectedId)?.userRating;
+  const isAlreadyWatched = movieDetail.movie && watched.map((movie) => movie.imdbID).includes(selectedId);
+  const watchedUserRating = movieDetail.movie && watched.find((movie) => movie.imdbID === selectedId)?.userRating;
 
-  const isTop = movie && movie.imdbRating > 8;
+  const isTop = movieDetail.movie && +movieDetail.movie.imdbRating > 8;
 
   function handleAdd() {
-    if (!movie) return;
+    if (!movieDetail.movie) return;
     const newWatchedMovie = {
-      imdbID: selectedId,
-      Title: movie.Title,
-      Year: movie.Year,
-      Poster: movie.Poster,
-      Released: movie.Released,
-      Genre: movie.Genre,
-      Plot: movie.Plot,
-      Actors: movie.Actors,
-      Director: movie.Director,
-      imdbRating: Number(movie.imdbRating),
-      Runtime: movie.Runtime,
+      ...movieDetail.movie,
       userRating,
       countRatingDecisions: countRef.current,
     } as MovieModal;
 
     onAddWatched(newWatchedMovie);
     onCloseMovie();
-
-    // setAvgRating(Number(imdbRating));
-    // setAvgRating((avgRating) => (avgRating + userRating) / 2);
   }
-
   useKey("Escape", onCloseMovie);
 
-  useEffect(
-    function () {
-      async function getMovieDetails() {
-        setIsLoading(true);
-        const res = await fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`);
-        const data = await res.json();
-        setMovie(data);
-        setIsLoading(false);
-      }
-      getMovieDetails();
-    },
-    [selectedId]
-  );
+  useEffect(() => {
+    const controller = new AbortController();
+    async function getMovieDetails() {
+      setMovieDetail({ movie: null, isLoading: true });
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`, {
+        signal: controller.signal,
+      });
+      const data = await res.json();
+      setMovieDetail({ movie: data, isLoading: false });
+    }
+    getMovieDetails().catch((err) => {
+      if (err.name === "AbortError") return;
+      setMovieDetail({ movie: null, isLoading: false, error: err.message });
+    });
+    return () => {
+      controller.abort();
+    };
+  }, [selectedId]);
 
   useEffect(
     function () {
-      if (!movie) return;
-      document.title = `Movie | ${movie.Title}`;
-
+      if (!movieDetail.movie) return;
+      document.title = `Movie | ${movieDetail.movie.Title}`;
       return function () {
         document.title = "usePopcorn";
-        // console.log(`Clean up effect for movie ${title}`);
       };
     },
-    [movie]
+    [movieDetail.movie]
   );
-  if (!movie) return <></>;
+
   return (
-    <div className="details">
-      {isLoading ? (
-        <Loader loading={isLoading} />
-      ) : (
+    <div className="relative flex flex-col justify-center">
+      {movieDetail.error && <ErrorMessage className="text-center" message={movieDetail.error} />}
+      {movieDetail.isLoading && !movieDetail.error && <Loader loading={movieDetail.isLoading} />}
+      {movieDetail.movie && (
         <>
-          <header>
-            <button className="btn-back" onClick={onCloseMovie}>
+          <header className="flex flex-col gap-4">
+            <button
+              className="inline-block w-fit sticky -top-16 left-1 text-gray-600 text-2xl hover:text-gray-900 hover:-translate-x-1 transition-all"
+              onClick={onCloseMovie}
+            >
               &larr;
             </button>
-            <img src={movie.Poster} alt={`Poster of ${movie} movie`} />
-            <div className="details-overview">
-              <h2>{movie.Title}</h2>
+            <img
+              className="dlock w-3/4 self-center"
+              src={movieDetail.movie.Poster}
+              alt={`Poster of ${movieDetail.movie} movie`}
+            />
+            <div className="flex flex-col gap-2 text-black">
+              <h2 className="font-semibold text-center">{movieDetail.movie.Title}</h2>
               <p>
-                {movie.Released} &bull; {movie.Runtime}
+                {movieDetail.movie.Released} &bull; {movieDetail.movie.Runtime}
               </p>
-              <p>{movie.Genre}</p>
-              <p>
+              <p>{movieDetail.movie.Genre}</p>
+              <p className="flex gap-2">
                 <span>⭐️</span>
-                {movie.imdbRating} IMDb rating
+                {movieDetail.movie.imdbRating} IMDb rating
               </p>
             </div>
           </header>
-
-          {/* <p>{avgRating}</p> */}
-
           <section>
-            <div className="rating">
-              {!isWatched ? (
+            <div className="rating my-2">
+              {!isAlreadyWatched ? (
                 <>
                   <StarRating maxRating={10} size={24} onSetRating={setUserRating} />
                   {userRating > 0 && (
-                    <button className="btn-add" onClick={handleAdd}>
+                    <button
+                      className="font-semibold bg-primary px-4 py-2 rounded-md my-2 hover:bg-primary-light text-white"
+                      onClick={handleAdd}
+                    >
                       + Add to list
                     </button>
                   )}
                 </>
               ) : (
-                <p>
-                  You rated with movie {watchedUserRating} <span>⭐️</span>
+                <p className="text-black font-bold">
+                  You rated this movie {watchedUserRating} <span>⭐️</span>
                 </p>
               )}
             </div>
-            <p>
-              <em>{movie.Plot}</em>
+            <p className="text-black text-justify border-b border-gray-400 pb-1">
+              <em>{movieDetail.movie.Plot}</em>
             </p>
-            <p>Starring {movie.Actors}</p>
-            <p>Directed by {movie.Director}</p>
+            <p className="text-black font-medium text-sm mt-2">
+              <span className="font-bold">Starring : </span> {movieDetail.movie.Actors}
+            </p>
+            <p className="text-black font-medium text-sm">
+              <span className="font-bold">Directed by : </span> {movieDetail.movie.Director}
+            </p>
           </section>
         </>
       )}

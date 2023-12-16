@@ -1,11 +1,5 @@
 import { useState } from "react";
 
-const containerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "16px",
-};
-
 const starContainerStyle = {
   display: "flex",
 };
@@ -43,8 +37,8 @@ export default function StarRating({
   };
 
   return (
-    <div style={containerStyle} className={className}>
-      <div style={starContainerStyle}>
+    <div className={`flex items-center gap-6 overflow-scroll ${className}`}>
+      <div className="flex gap-1">
         {Array.from({ length: maxRating }, (_, i) => (
           <Star
             key={i}

@@ -7,8 +7,9 @@ export interface MovieModal {
   Genre: string;
   Plot: string;
   Actors: string;
-  Runtime: number;
-  imdbRating: number;
+  Runtime: string;
+  imdbRating: string;
   userRating: number;
   Director: string;
+  countRatingDecisions?: number;
 }
