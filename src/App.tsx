@@ -40,7 +40,7 @@ export default function App() {
     <>
       <NavBar>
         <Search query={movieNameQuery} setQuery={setMovieNameQuery} />
-        <NumResults count={movies.length} />
+        <NumResults className="" count={movies.length} />
       </NavBar>
 
       <Main>

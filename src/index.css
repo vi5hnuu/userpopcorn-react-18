@@ -7,5 +7,5 @@ body {
 }
 
 #root {
-  @apply flex flex-col p-10 min-h-screen min-w-full;
+  @apply flex flex-col p-4 md:p-10 min-h-screen min-w-full;
 }
