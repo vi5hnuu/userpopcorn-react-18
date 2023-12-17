@@ -37,7 +37,7 @@ export default function StarRating({
   };
 
   return (
-    <div className={`flex items-center gap-6 overflow-scroll ${className}`}>
+    <div className={`flex items-center gap-6 px-2 pb-4 overflow-scroll ${className}`}>
       <div className="flex gap-1">
         {Array.from({ length: maxRating }, (_, i) => (
           <Star
