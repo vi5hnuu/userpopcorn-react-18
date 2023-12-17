@@ -9,7 +9,7 @@ export default function MovieList({
   onSelectMovie: (imdbId: string) => void;
 }) {
   return (
-    <ul className="list-none grid sm:grid-cols-1 md:grid-cols-2 gap-4 lg:grid-cols-3">
+    <ul className="list-none grid grid-cols-2 gap-4 md:grid-cols-3">
       {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
       ))}
