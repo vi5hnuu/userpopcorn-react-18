@@ -19,12 +19,12 @@ export function useMovies(query: string) {
         if (!res.ok) throw new Error("Something went wrong with fetching movies");
 
         const data = await res.json();
-        if (data.Response === "False") throw new Error("Movie not found");
+        if (data.Response === "False" || data.Search.length === 0) throw new Error("Movie not found");
         setMovieDetails({ movies: data.Search, error: null, isLoading: true });
       } catch (err: any) {
         setMovieDetails({ movies: [], error: err.message, isLoading: false });
       } finally {
-        setMovieDetails((movieDetails) => ({ ...movieDetails, error: null, isLoading: false }));
+        setMovieDetails((movieDetails) => ({ ...movieDetails, isLoading: false }));
       }
     },
     [query]
