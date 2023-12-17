@@ -22,7 +22,7 @@ export function useMovies(query: string) {
         if (data.Response === "False" || data.Search.length === 0) throw new Error("Movie not found");
         setMovieDetails({ movies: data.Search, error: null, isLoading: true });
       } catch (err: any) {
-        setMovieDetails({ movies: [], error: err.message, isLoading: false });
+        setMovieDetails({ movies: [], error: err.name === "AbortError" ? null : err.message, isLoading: false });
       } finally {
         setMovieDetails((movieDetails) => ({ ...movieDetails, isLoading: false }));
       }
