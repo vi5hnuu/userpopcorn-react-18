@@ -17,9 +17,9 @@ export default function Movie({
         <img
           src={movie.Poster}
           alt={`${movie.Title} poster`}
-          className="block w-full text-xl text-black h-60 md:h-72 lg:h-96 object-fill origin-top-left aspect-auto bg-slate-50"
+          className="block w-full text-xl text-black h-[88%] md:h-96 lg:h-96 object-fill origin-top-left aspect-auto bg-slate-50"
         />
-        <h3 className="text-white px-2 py-1 line-clamp-1 rounded-b-md bg-slate-500" title={movie.Title}>
+        <h3 className="text-white px-2 py-1 h-[10%] line-clamp-1 rounded-b-md bg-slate-500" title={movie.Title}>
           {movie.Title}
         </h3>
       </div>
